@@ -1,1 +1,1 @@
-PyInstaller --onefile --noconsole --windowed --name ReCape --icon recape.ico --collect-all customtkinter ReCape.py
+PyInstaller --onefile --noconsole --windowed --name ReCape --icon recape.ico --collect-all customtkinter --add-data "images/*;images/" ReCape.py
