@@ -1,6 +1,6 @@
 # ReCape Installer ↩🔹🛠
 
-The official ReCape installer script!
+The official ReCape Installer!
 
 
 ## [Join Our Discord Server](https://discord.gg/MY2DWCBZd4)
