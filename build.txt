@@ -1,0 +1,1 @@
+PyInstaller --onefile --noconsole --windowed --name ReCape --icon recape.ico --collect-all customtkinter ReCape.py

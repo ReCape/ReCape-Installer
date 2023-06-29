@@ -8,6 +8,12 @@ import dns.resolver
 import platform
 import os
 from PIL import Image, ImageTk, ImageDraw, ImageOps
+import sys
+
+try:
+    os.chdir(sys._MEIPASS)
+except AttributeError:
+    pass
 
 
 # declare
@@ -61,7 +67,7 @@ class App(customtkinter.CTk):
     def _generate_icons(self):
 
         # Create the image path
-        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+        image_path = "images"
         
         # Index of images and icons
         self.image_indexes = {
@@ -269,6 +275,7 @@ class App(customtkinter.CTk):
 # Actual installer code
 
 def install():
+    uninstall(False)
     try:
         with open(hosts_file_dir, "r") as hosts:
             content = hosts.readlines()
@@ -276,16 +283,14 @@ def install():
             content.append("\n" + RECAPE_IP + " " + OPTIFINE_URL + " #" + LINE_IDENTIFIER)
             hosts.write("".join(content))
     except PermissionError as e:
-        print("Access Denied on Install")  # debug
         app.update_status_box(
-            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either Do a manual installation by yourself with the 'manual button' or \n run this installer as an administrator, root, or superuser."
+            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either do a manual installation by yourself with the \"manual\" button \n or run this installer as an administrator/root/superuser."
         )
     else:
         status = "Installed successfully!"
         app.update_status_box(status)
 
 def get_installer_text():
-    print("Instruct has been sent")  # debug
     app.update_status_box(
         "You can install ReCape yourself by manually inputting text into your hosts file. \n On your system, this file should be located at \""
         + hosts_file_dir
@@ -298,24 +303,24 @@ def get_installer_text():
         + "\nSimilarly, you can uninstall ReCape by deleting that line in the hosts file later."
     )
 
-def uninstall():
+def uninstall(output=True):
     try:
         with open(hosts_file_dir, "r") as hosts:
             content = hosts.readlines()
+            new_content = []
             for i in range(len(content)):
-                if LINE_IDENTIFIER in content[i]:
-                    content.pop(i)
-                    break
+                if not LINE_IDENTIFIER in content[i]:
+                    new_content.append(content[i])
         with open(hosts_file_dir, "w") as hosts:
-            hosts.write("".join(content))
+            hosts.write("".join(new_content))
     except PermissionError:
-        print("Access Denied on Uninstall")  # debug
-        app.update_status_box(
-            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either Do a manual installation by yourself with the 'manual button' or \n run this installer as an administrator, root, or superuser."
-        )
+        if output:
+            app.update_status_box(
+                "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either do a manual installation by yourself with the \"manual\" button \n or run this installer as an administrator/root/superuser."
+            )
     else:
-        status = "Uninstalled ReCape!"
-        app.update_status_box(status)
+        if output:
+            app.update_status_box("Uninstalled ReCape!")
 
 # create and run app
 app = App()
