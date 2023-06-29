@@ -3,6 +3,8 @@
 The official ReCape installer script!
 
 
+## [Discord](https://discord.gg/MY2DWCBZd4)
+
 
 by DedFishy  and  manthe.sh
 
