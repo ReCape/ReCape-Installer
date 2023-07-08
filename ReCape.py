@@ -7,6 +7,7 @@ import customtkinter
 import dns.resolver
 import platform
 import os
+import subprocess
 from PIL import Image, ImageTk, ImageDraw, ImageOps
 
 
@@ -74,7 +75,8 @@ class App(customtkinter.CTk):
             "discord",
             "download",
             "close",
-            "manual"
+            "manual",
+            "blc"
         ]
         self.icon_size = (20, 20)
 
@@ -217,6 +219,10 @@ class App(customtkinter.CTk):
         )
         self.install_button.grid(row=3, column=0, padx=20, pady=10)
 
+        self.blc_support_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=0, border_spacing=10, text="BLC Support", fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), image=self.icons["blc"], anchor="w", command=blc_support_event
+        )
+        self.blc_support_button.grid(row=4, column=0, sticky="ew")
+
         self.uninstall_button = customtkinter.CTkButton(
             self.home_frame, text="Uninstall", image=self.icons["close"], compound="top", command=uninstall
         )
@@ -317,6 +323,15 @@ def uninstall():
         status = "Uninstalled ReCape!"
         app.update_status_box(status)
 
+def blc_support_event():
+    app.update_status_box("Running command as administrator...")
+    command = 'attrib "C:\Windows\System32\drivers\etc\hosts" -s -h -r && attrib "C:\Windows\System32\drivers\etc\hosts" +s +r'
+    try:
+        subprocess.run(["cmd", "/c", "start", "/wait", "runas", "/user:Administrator", "cmd.exe", "/c", command])
+    except Exception as e:
+        app.update_status_box("Error running command: " + str(e))
+    else:
+        app.update_status_box("Completed successfully!")
 # create and run app
 app = App()
 app.mainloop()
