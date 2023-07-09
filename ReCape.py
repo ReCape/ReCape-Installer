@@ -8,7 +8,7 @@ import dns.resolver
 import platform
 import os
 import subprocess
-from PIL import Image, ImageTk, ImageDraw, ImageOps
+from PIL import Image
 
 
 # declare
@@ -50,9 +50,8 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
 
         # Set the icon of the window
-        icon_path = os.path.join(os.path.dirname(__file__), "images", "icon_logo.ico")
-        if os.path.exists(icon_path):
-            self.iconbitmap(default=icon_path)
+        if os.name == "posix" or os.name == "Darwin":
+            self.iconbitmap("@images/recape.xbm")
 
         self._generate_icons()
 
