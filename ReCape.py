@@ -7,13 +7,8 @@ import customtkinter
 import dns.resolver
 import platform
 import os
-from PIL import Image
-import sys
-
-try:
-    os.chdir(sys._MEIPASS)
-except AttributeError:
-    pass
+import subprocess
+from PIL import Image, ImageTk, ImageDraw, ImageOps
 
 
 # declare
@@ -55,8 +50,9 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
 
         # Set the icon of the window
-        if os.name == "posix":
-            self.iconbitmap("@images/recape.xbm")
+        icon_path = os.path.join(os.path.dirname(__file__), "images", "icon_logo.ico")
+        if os.path.exists(icon_path):
+            self.iconbitmap(default=icon_path)
 
         self._generate_icons()
 
@@ -66,7 +62,7 @@ class App(customtkinter.CTk):
     def _generate_icons(self):
 
         # Create the image path
-        image_path = "images"
+        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
         
         # Index of images and icons
         self.image_indexes = {
@@ -79,7 +75,8 @@ class App(customtkinter.CTk):
             "discord",
             "download",
             "close",
-            "manual"
+            "manual",
+            "blc"
         ]
         self.icon_size = (20, 20)
 
@@ -222,6 +219,10 @@ class App(customtkinter.CTk):
         )
         self.install_button.grid(row=3, column=0, padx=20, pady=10)
 
+        self.blc_support_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=0, border_spacing=10, text="BLC Support", fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), image=self.icons["blc"], anchor="w", command=blc_support_event
+        )
+        self.blc_support_button.grid(row=4, column=0, sticky="ew")
+
         self.uninstall_button = customtkinter.CTkButton(
             self.home_frame, text="Uninstall", image=self.icons["close"], compound="top", command=uninstall
         )
@@ -274,7 +275,6 @@ class App(customtkinter.CTk):
 # Actual installer code
 
 def install():
-    uninstall(False)
     try:
         with open(hosts_file_dir, "r") as hosts:
             content = hosts.readlines()
@@ -282,14 +282,16 @@ def install():
             content.append("\n" + RECAPE_IP + " " + OPTIFINE_URL + " #" + LINE_IDENTIFIER)
             hosts.write("".join(content))
     except PermissionError as e:
+        print("Access Denied on Install")  # debug
         app.update_status_box(
-            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either do a manual installation by yourself with the \"manual\" button \n or run this installer as an administrator/root/superuser."
+            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either Do a manual installation by yourself with the 'manual button' or \n run this installer as an administrator, root, or superuser."
         )
     else:
         status = "Installed successfully!"
         app.update_status_box(status)
 
 def get_installer_text():
+    print("Instruct has been sent")  # debug
     app.update_status_box(
         "You can install ReCape yourself by manually inputting text into your hosts file. \n On your system, this file should be located at \""
         + hosts_file_dir
@@ -302,25 +304,34 @@ def get_installer_text():
         + "\nSimilarly, you can uninstall ReCape by deleting that line in the hosts file later."
     )
 
-def uninstall(output=True):
+def uninstall():
     try:
         with open(hosts_file_dir, "r") as hosts:
             content = hosts.readlines()
-            new_content = []
             for i in range(len(content)):
-                if not LINE_IDENTIFIER in content[i]:
-                    new_content.append(content[i])
+                if LINE_IDENTIFIER in content[i]:
+                    content.pop(i)
+                    break
         with open(hosts_file_dir, "w") as hosts:
-            hosts.write("".join(new_content))
+            hosts.write("".join(content))
     except PermissionError:
-        if output:
-            app.update_status_box(
-                "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either do a manual installation by yourself with the \"manual\" button \n or run this installer as an administrator/root/superuser."
-            )
+        print("Access Denied on Uninstall")  # debug
+        app.update_status_box(
+            "Could not access your hosts file. \n You need to start ReCape as an administrator/root in order to do this. \n You can either Do a manual installation by yourself with the 'manual button' or \n run this installer as an administrator, root, or superuser."
+        )
     else:
-        if output:
-            app.update_status_box("Uninstalled ReCape!")
+        status = "Uninstalled ReCape!"
+        app.update_status_box(status)
 
+def blc_support_event():
+    app.update_status_box("Running command as administrator...")
+    command = 'attrib "C:\Windows\System32\drivers\etc\hosts" -s -h -r && attrib "C:\Windows\System32\drivers\etc\hosts" +s +r'
+    try:
+        subprocess.run(["cmd", "/c", "start", "/wait", "runas", "/user:Administrator", "cmd.exe", "/c", command])
+    except Exception as e:
+        app.update_status_box("Error running command: " + str(e))
+    else:
+        app.update_status_box("Completed successfully!")
 # create and run app
 app = App()
 app.mainloop()
