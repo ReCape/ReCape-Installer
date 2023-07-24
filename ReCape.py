@@ -324,6 +324,9 @@ def uninstall():
         app.update_status_box(status)
 
 def blc_support_event():
+    if current_os != "Windows":
+        app.update_status_box("Sorry, but BLC support is only available on Windows (for now).")
+        return
     app.update_status_box("Running command as administrator...")
     command = 'attrib "C:\Windows\System32\drivers\etc\hosts" -s -h -r && attrib "C:\Windows\System32\drivers\etc\hosts" +s +r'
     try:
