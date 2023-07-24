@@ -52,7 +52,7 @@ class App(customtkinter.CTk):
         # Set the icon of the window
         icon_path = os.path.join(os.path.dirname(__file__), "images", "icon_logo.ico")
         if os.path.exists(icon_path):
-            self.iconbitmap(default=icon_path)
+            self.iconbitmap(icon_path)
 
         self._generate_icons()
 
